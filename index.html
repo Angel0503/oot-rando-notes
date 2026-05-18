@@ -13,11 +13,12 @@
             margin: 0;
             padding: 5px 10px;
             box-sizing: border-box;
-            font-size: 12px;
+            font-size: 14px; /* Increased base font size */
             height: 100vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            text-transform: uppercase;
         }
 
         h2 {
@@ -25,7 +26,7 @@
             border-bottom: 1px solid #333;
             margin: 4px 0;
             padding-bottom: 2px;
-            font-size: 14px;
+            font-size: 16px; /* Increased heading font size */
             flex-shrink: 0;
         }
 
@@ -38,8 +39,9 @@
             padding: 2px 4px;
             box-sizing: border-box;
             resize: none;
-            font-size: 11px;
+            font-size: 14px; /* Increased input text size */
             font-family: inherit;
+            text-transform: uppercase;
         }
 
         textarea {
@@ -54,39 +56,43 @@
         .arrow {
             color: #888;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px; /* Increased arrow size */
             padding: 0 4px;
             display: flex;
             align-items: center;
         }
 
-        /* Top Sections */
-        .barren-container, #path-container {
+        /* --- Barren Section --- */
+        .barren-container {
+            display: flex;
+            flex-direction: row; 
+            gap: 10px; 
+            width: 100%;
+            flex: none; 
+            height: 28px; /* Slightly taller to fit the bigger text */
+        }
+
+        .barren-container textarea {
+            flex: 1; 
+            padding-top: 4px; 
+        }
+
+        /* --- Path Section --- */
+        #path-container {
             display: flex;
             flex-direction: column;
             gap: 3px;
             width: 100%;
+            flex: none; 
         }
 
-        .barren-container {
-            flex: 0.15;
-        }
-
-        #path-container {
-            flex: 0.35;
-        }
-
-        .barren-container textarea {
-            flex: 1;
-        }
-
-        /* Bottom Side-by-Side Section */
+        /* --- Bottom Side-by-Side Section --- */
         .bottom-split {
-            flex: 0.50;
+            flex: 1; 
             display: flex;
             gap: 10px;
             margin-top: 5px;
-            min-height: 0; /* Prevents overflow pushing */
+            min-height: 0; 
         }
 
         .notes-section, .dungeons-section {
@@ -110,14 +116,27 @@
             flex: 1;
         }
 
-        .path-row textarea, .note-row textarea {
+        /* Makes Path rows exactly 28px tall for bigger text */
+        .path-row {
+            flex: none;
+            height: 28px; 
+        }
+
+        .path-row textarea {
+            flex: 1;
+            margin: 0;
+            padding-top: 4px; 
+        }
+
+        /* Note rows stay flexible to fill the bottom half */
+        .note-row textarea {
             flex: 1;
             margin: 0;
         }
 
         .dungeon-row {
             align-items: center;
-            justify-content: flex-end; /* Pushes dropdowns to the right */
+            justify-content: flex-end; 
         }
 
         .dungeon-label {
@@ -253,11 +272,9 @@
             select.addEventListener('change', updateDropdowns);
         });
 
-        // --- NEW: Prevent Accidental Refresh / Close ---
+        // --- Prevent Accidental Refresh / Close ---
         window.addEventListener('beforeunload', function (e) {
-            // Cancel the event as stated by the standard.
             e.preventDefault();
-            // Chrome requires returnValue to be set.
             e.returnValue = '';
         });
     </script>
