@@ -1,0 +1,3 @@
+complétion auto des notes
+mettre si path résolu
+mettre item qu'on a pour les path
