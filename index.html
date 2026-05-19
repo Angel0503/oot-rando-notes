@@ -400,7 +400,7 @@
         }
 
         // --- Generate Dungeon Elements ---
-        const dungeons = ['Deku', 'Dodongo', 'Jabu', 'Forest', 'Fire', 'Water', 'Shadow', 'Spirit', 'BotW', 'Ice', 'GTG'];
+        const dungeons = ['Deku', 'DC', 'Jabu', 'Forest', 'Fire', 'Water', 'Shadow', 'Spirit', 'BotW', 'Ice', 'GTG'];
         const dungeonContainer = document.getElementById('dungeon-container');
         
         dungeons.forEach(dungeon => {
@@ -411,6 +411,8 @@
             
             const select = document.createElement('select');
             select.className = 'dungeon-select';
+            
+            select.id = `entrance-${dungeon}`; 
             
             const defaultOption = document.createElement('option');
             defaultOption.value = "";
@@ -462,5 +464,47 @@
             e.returnValue = '';
         });
     </script>
+    <script>
+    // 1. Connect to the Python Bridge we just built
+    const trackerSocket = new WebSocket('ws://localhost:8080');
+
+    // 2. When it successfully connects, log it
+    trackerSocket.onopen = function(event) {
+        console.log("🟢 Connected to RMG Auto-Tracker Server!");
+        // (Optional: You could change the color of a 'Status' text on your page here)
+    };
+
+    // 3. The Magic: What to do when Python sends us data
+    trackerSocket.onmessage = function(event) {
+        // Translate the text message back into a JavaScript Object
+        const payload = JSON.parse(event.data);
+        
+        if (payload.type === "entrances") {
+            console.log("Received new dungeon layout!", payload.locations);
+            
+            // Loop through the 12 dungeons Python sent us
+            for (const [entranceName, destinationName] of Object.entries(payload.locations)) {
+                
+                // Find the dropdown menu for this specific entrance
+                // (Make sure your HTML <select> tags have matching IDs!)
+                const dropdown = document.getElementById(`entrance-${entranceName}`);
+                
+                if (dropdown) {
+                    // Instantly change the dropdown's value to match the game!
+                    dropdown.value = destinationName;
+                }
+            }
+        }
+    };
+
+    // 4. Error Handling
+    trackerSocket.onclose = function(event) {
+        console.log("🔴 Disconnected from Auto-Tracker Server.");
+    };
+    
+    trackerSocket.onerror = function(error) {
+        console.error("WebSocket Error:", error);
+    };
+</script>
 </body>
 </html>

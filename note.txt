@@ -1,2 +1,1 @@
 complétion auto des notes
-complétion auto dungeons entrances
