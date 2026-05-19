@@ -9,13 +9,11 @@ ENTRANCE_ORDER = [
     "Shadow", "Spirit", "BotW", "Ice", "GTG"
 ]
 
-# All possible strings the Randomizer could ever print
 KNOWN_DESTINATIONS = {
     "Deku", "DC", "Jabu", "Forest", "Fire", "Water", 
     "Shadow", "Spirit", "BotW", "Ice", "GTG"
 }
 
-# We will search for any of these to use as our anchor point
 ANCHORS = [
     b"Water   \x00", b"Fire    \x00", b"Forest  \x00", 
     b"Shadow  \x00", b"Spirit  \x00", b"Ice     \x00"
@@ -48,7 +46,6 @@ def find_game_block():
                 raw_data = pm.read_bytes(mbi.BaseAddress, mbi.RegionSize)
                 clean_mem = unswap_memory(raw_data)
                 
-                # Check if ANY of our anchors exist in this block
                 for anchor in ANCHORS:
                     if anchor in clean_mem:
                         GAME_BASE_ADDRESS = mbi.BaseAddress
@@ -67,7 +64,6 @@ def get_dungeon_data():
         raw_data = pm.read_bytes(GAME_BASE_ADDRESS, GAME_REGION_SIZE)
         clean_memory = unswap_memory(raw_data)
 
-        # 1. Find an anchor
         anchor_offset = -1
         for anchor in ANCHORS:
             offset = clean_memory.find(anchor)
@@ -77,16 +73,13 @@ def get_dungeon_data():
 
         if anchor_offset == -1: return None
 
-        # 2. THE GRID SNAP ALGORITHM
         best_base = 0
         max_score = -1
 
-        # Test all 12 possible starting positions
         for i in range(12):
             test_base = anchor_offset - (i * 9)
             score = 0
             
-            # Read the 12 items at this alignment and score them
             for j in range(12):
                 start = test_base + (j * 9)
                 chunk = clean_memory[start:start+9]
@@ -95,12 +88,10 @@ def get_dungeon_data():
                 if clean_text in KNOWN_DESTINATIONS:
                     score += 1
             
-            # If this alignment looks the most like a Zelda list, lock it in!
             if score > max_score:
                 max_score = score
                 best_base = test_base
 
-        # 3. Read and extract the perfected data
         payload = {"type": "entrances", "locations": {}}
 
         for i, dungeon in enumerate(ENTRANCE_ORDER):
