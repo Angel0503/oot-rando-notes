@@ -1,0 +1,206 @@
+/* Dark theme, 100% viewport height, NO scrolling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1e1e24;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    font-size: 14px; 
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-transform: uppercase;
+}
+
+h2 {
+    color: #fca311;
+    border-bottom: 1px solid #333;
+    margin: 4px 0;
+    padding-bottom: 2px;
+    font-size: 16px; 
+    flex-shrink: 0;
+}
+
+/* Generic input styling */
+textarea, select {
+    background-color: #2b2b36;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 3px;
+    padding: 2px 4px;
+    box-sizing: border-box;
+    resize: none;
+    font-size: 14px; 
+    font-family: inherit;
+    text-transform: uppercase;
+}
+
+textarea {
+    width: 100%;
+}
+
+select:focus, textarea:focus {
+    outline: none;
+    border-color: #fca311;
+}
+
+.arrow {
+    color: #888;
+    font-weight: bold;
+    font-size: 16px; 
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+}
+
+/* --- Barren Section --- */
+.barren-container {
+    display: flex;
+    flex-direction: row; 
+    gap: 10px; 
+    width: 100%;
+    flex: none; 
+    height: 28px; 
+}
+
+.barren-container textarea {
+    flex: 1; 
+    padding-top: 4px; 
+}
+
+/* --- Path Section --- */
+#path-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    flex: none; 
+}
+
+.path-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2px;
+}
+
+.path-row {
+    display: flex;
+    align-items: stretch;
+    flex: none;
+    height: 28px; 
+}
+
+.path-row textarea {
+    flex: 1;
+    margin: 0;
+    padding-top: 4px; 
+}
+
+/* Sub-row for the item dropdowns */
+.item-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap; 
+    padding-left: 22px; 
+    margin-top: 2px;
+    align-items: center;
+}
+
+.item-select {
+    flex: none;
+    width: auto; 
+    height: 22px;
+    font-size: 11px; 
+    cursor: pointer;
+}
+
+/* Delete Button Styling */
+.delete-item-btn {
+    background: none;
+    border: none;
+    color: #d9534f;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0 4px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-item-btn:hover {
+    color: #ff7675;
+}
+
+/* Path Checkbox Styling */
+.path-checkbox {
+    margin: 0 6px 0 2px;
+    align-self: center; 
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #fca311; 
+}
+
+/* The transparent state for completed paths */
+.resolved {
+    opacity: 0.4;
+    transition: opacity 0.2s ease-in-out; 
+}
+
+/* --- Bottom Side-by-Side Section --- */
+.bottom-split {
+    flex: 1; 
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+    min-height: 0; 
+}
+
+.notes-section, .dungeons-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0; 
+}
+
+#notes-container, #dungeon-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+}
+
+.row {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+}
+
+.note-row textarea {
+    flex: 1;
+    margin: 0;
+}
+
+.dungeon-row {
+    align-items: center;
+    justify-content: flex-end; 
+}
+
+.dungeon-label {
+    flex: 1;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dungeon-row select {
+    flex: none; 
+    width: auto; 
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+}
