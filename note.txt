@@ -1,4 +1,2 @@
 complétion auto des notes
 complétion auto dungeons entrances
-mettre si path résolu
-mettre item qu'on a pour les path

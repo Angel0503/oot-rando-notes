@@ -81,25 +81,80 @@
         #path-container {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 2px;
             width: 100%;
             flex: none; 
+        }
+
+        .path-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 2px;
+        }
+
+        .path-row {
+            display: flex;
+            align-items: stretch;
+            flex: none;
+            height: 28px; 
+        }
+
+        .path-row textarea {
+            flex: 1;
+            margin: 0;
+            padding-top: 4px; 
+        }
+
+        /* Sub-row for the item dropdowns */
+        .item-row {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap; 
+            padding-left: 22px; 
+            margin-top: 2px;
+            align-items: center; /* Keeps button and dropdowns aligned */
+        }
+
+        .item-select {
+            flex: none;
+            width: auto; 
+            height: 22px;
+            font-size: 11px; 
+            cursor: pointer;
+        }
+
+        /* NEW: Delete Button Styling */
+        .delete-item-btn {
+            background: none;
+            border: none;
+            color: #d9534f; /* Soft red */
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0 4px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-item-btn:hover {
+            color: #ff7675; /* Lighter red on hover */
         }
 
         /* Path Checkbox Styling */
         .path-checkbox {
             margin: 0 6px 0 2px;
-            align-self: center; /* Keeps it vertically centered next to the boxes */
+            align-self: center; 
             cursor: pointer;
             width: 16px;
             height: 16px;
-            accent-color: #fca311; /* Makes the checkmark match your theme color */
+            accent-color: #fca311; 
         }
 
         /* The transparent state for completed paths */
         .resolved {
             opacity: 0.4;
-            transition: opacity 0.2s ease-in-out; /* Smooth fade effect */
+            transition: opacity 0.2s ease-in-out; 
         }
 
         /* --- Bottom Side-by-Side Section --- */
@@ -125,26 +180,12 @@
             flex: 1;
         }
 
-        /* Row layouts */
         .row {
             display: flex;
             align-items: stretch;
             flex: 1;
         }
 
-        /* Makes Path rows exactly 28px tall for bigger text */
-        .path-row {
-            flex: none;
-            height: 28px; 
-        }
-
-        .path-row textarea {
-            flex: 1;
-            margin: 0;
-            padding-top: 4px; 
-        }
-
-        /* Note rows stay flexible to fill the bottom half */
         .note-row textarea {
             flex: 1;
             margin: 0;
@@ -203,26 +244,144 @@
     </div>
 
     <script>
-        // --- Generate Path Elements with Checkboxes ---
+        // --- Game Data ---
+        const gameItems = [
+            "Bow", "Hookshot", "Longshot", "Hammer", "Bombs", "Bombchus", "Scale", 
+            "Strength 1", "Strength 2", "Strength 3", "KokiriSword", "BiggoronSword", 
+            "MirrorShield", "ZoraTunic", "GoronTunic", "IronBoots", "HoverBoots", 
+            "Dins", "Farores", "Nayrus", "Magic", "Fire", "Ice", "Light", "Slingshot", 
+            "Boomerang", "Lens", "Bottle", "ZoraLetter"
+        ];
+        const gameSongs = [
+            "ZeldasLullaby", "EponasSong", "SunsSong", "SariasSong", "SongofTime", 
+            "SongofStorms", "MinuetofForest", "BoleroofFire", "SerenadeofWater", 
+            "NocturneofShadow", "RequiemofSpirit", "PreludeofLight"
+        ];
+        const allItemsAndSongs = [...gameItems, ...gameSongs];
+
+        // --- Mutually Exclusive Logic for Items ---
+        function updateItemDropdowns() {
+            const allItemSelects = document.querySelectorAll('.item-select');
+            const selectedValues = Array.from(allItemSelects)
+                .map(s => s.value)
+                .filter(val => val !== "");
+
+            allItemSelects.forEach(select => {
+                const currentVal = select.value;
+                Array.from(select.options).forEach(option => {
+                    if (option.value === "") return;
+
+                    if (selectedValues.includes(option.value) && option.value !== currentVal) {
+                        option.disabled = true;
+                        option.style.color = "#555";
+                    } else {
+                        option.disabled = false;
+                        option.style.color = "#fff";
+                    }
+                });
+            });
+        }
+
+        // --- Logic to create a new item dropdown ---
+        // Now accepts a referenceNode (the delete button) so the dropdown always spawns BEFORE the button
+        function createItemDropdown(container, referenceNode) {
+            const select = document.createElement('select');
+            select.className = 'item-select';
+            
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = "";
+            defaultOpt.innerText = "---";
+            select.appendChild(defaultOpt);
+
+            allItemsAndSongs.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.innerText = item;
+                select.appendChild(opt);
+            });
+
+            select.addEventListener('change', function() {
+                updateItemDropdowns();
+                
+                const selectsInRow = container.querySelectorAll('.item-select');
+                const isLast = (this === selectsInRow[selectsInRow.length - 1]);
+                const isResolved = container.parentElement.querySelector('.path-checkbox').checked;
+                
+                if (this.value !== "" && isLast && !isResolved) {
+                    createItemDropdown(container, referenceNode);
+                }
+            });
+
+            // Insert before the delete button
+            container.insertBefore(select, referenceNode);
+            updateItemDropdowns(); 
+        }
+
+        // --- Generate Path Elements ---
         const pathContainer = document.getElementById('path-container');
         for (let i = 0; i < 8; i++) {
+            const group = document.createElement('div');
+            group.className = 'path-group';
+
             const row = document.createElement('div');
-            row.className = 'row path-row';
+            row.className = 'path-row';
             row.innerHTML = `
                 <input type="checkbox" class="path-checkbox" title="Mark as resolved">
                 <textarea placeholder="Source"></textarea>
                 <span class="arrow">→</span>
                 <textarea placeholder="Destination"></textarea>
             `;
-            pathContainer.appendChild(row);
 
-            // Add the listener for the fade-out effect
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            
+            // Create the Delete Button for this row
+            const delBtn = document.createElement('button');
+            delBtn.className = 'delete-item-btn';
+            delBtn.innerHTML = '✖';
+            delBtn.title = 'Remove last item';
+
+            // Delete Button Logic
+            delBtn.addEventListener('click', function() {
+                const selects = itemRow.querySelectorAll('.item-select');
+                // If there is more than 1 dropdown, delete the last one safely
+                if (selects.length > 1) {
+                    selects[selects.length - 1].remove();
+                    updateItemDropdowns();
+                } 
+                // If it's the only one left, just reset it so the user can still use it
+                else if (selects.length === 1) {
+                    selects[0].value = "";
+                    updateItemDropdowns();
+                }
+            });
+
+            // Append the button FIRST...
+            itemRow.appendChild(delBtn);
+            
+            // ...then generate the first dropdown BEFORE the button.
+            createItemDropdown(itemRow, delBtn);
+
+            group.appendChild(row);
+            group.appendChild(itemRow);
+            pathContainer.appendChild(group);
+
+            // Checkbox Fade & Cleanup Logic
             const checkbox = row.querySelector('.path-checkbox');
             checkbox.addEventListener('change', function() {
                 if (this.checked) {
-                    row.classList.add('resolved');
+                    group.classList.add('resolved');
+                    const selects = itemRow.querySelectorAll('.item-select');
+                    const lastSelect = selects[selects.length - 1];
+                    if (lastSelect && lastSelect.value === "") {
+                        lastSelect.remove();
+                    }
                 } else {
-                    row.classList.remove('resolved');
+                    group.classList.remove('resolved');
+                    const selects = itemRow.querySelectorAll('.item-select');
+                    if (selects.length === 0 || selects[selects.length - 1].value !== "") {
+                        createItemDropdown(itemRow, delBtn);
+                    }
                 }
             });
         }
@@ -270,17 +429,15 @@
             dungeonContainer.appendChild(row);
         });
 
-        // --- Mutually Exclusive Dropdown Logic ---
-        const selects = document.querySelectorAll('.dungeon-select');
-
-        function updateDropdowns() {
-            const selectedValues = Array.from(selects)
+        // --- Mutually Exclusive Dropdown Logic for Dungeons ---
+        const dungeonSelects = document.querySelectorAll('.dungeon-select');
+        function updateDungeonDropdowns() {
+            const selectedValues = Array.from(dungeonSelects)
                 .map(s => s.value)
                 .filter(val => val !== "");
 
-            selects.forEach(select => {
+            dungeonSelects.forEach(select => {
                 const currentSelectValue = select.value;
-
                 Array.from(select.options).forEach(option => {
                     if (option.value === "") return;
 
@@ -295,8 +452,8 @@
             });
         }
 
-        selects.forEach(select => {
-            select.addEventListener('change', updateDropdowns);
+        dungeonSelects.forEach(select => {
+            select.addEventListener('change', updateDungeonDropdowns);
         });
 
         // --- Prevent Accidental Refresh / Close ---
