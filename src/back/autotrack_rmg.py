@@ -132,15 +132,3 @@ async def tracker_server(websocket):
         except websockets.exceptions.ConnectionClosed:
             print("\n[-] HTML Tracker Disconnected.")
             break
-
-async def main():
-    print("Starting Auto-Tracker Bridge Server...")
-    if find_game_block():
-        print("Ready! Waiting for your HTML file to connect on port 8080...")
-        async with websockets.serve(tracker_server, "127.0.0.1", 8080):
-            await asyncio.Future() 
-    else:
-        print("Could not find the game data. Make sure you are in-game!")
-
-if __name__ == "__main__":
-    asyncio.run(main())
