@@ -215,8 +215,14 @@ window.addEventListener('beforeunload', function (e) {
 
 const trackerSocket = new WebSocket('ws://127.0.0.1:8080');
 
+// Grab the UI elements
+const statusContainer = document.getElementById('connection-status');
+const statusText = statusContainer.querySelector('.status-text');
+
 trackerSocket.onopen = function(event) {
     console.log("🟢 Connected to RMG Auto-Tracker Server!");
+    statusContainer.className = 'status-connected';
+    statusText.innerText = 'Auto-Tracker Connected';
 };
 
 trackerSocket.onmessage = function(event) {
@@ -226,7 +232,6 @@ trackerSocket.onmessage = function(event) {
         for (const [entranceName, destinationName] of Object.entries(payload.locations)) {
             
             let finalValue = destinationName;
-            // if (destinationName === "Dodongo") finalValue = "DC";
             if (destinationName === "???") finalValue = ""; // Resets to '---'
 
             const dropdown = document.getElementById(`entrance-${entranceName}`);
@@ -241,8 +246,12 @@ trackerSocket.onmessage = function(event) {
 
 trackerSocket.onclose = function(event) {
     console.log("🔴 Disconnected from Auto-Tracker Server.");
+    statusContainer.className = 'status-disconnected';
+    statusText.innerText = 'Disconnected';
 };
 
 trackerSocket.onerror = function(error) {
     console.error("WebSocket Error:", error);
+    statusContainer.className = 'status-disconnected';
+    statusText.innerText = 'Disconnected';
 };

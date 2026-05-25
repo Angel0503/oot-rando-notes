@@ -204,3 +204,54 @@ select:focus, textarea:focus {
     margin: 0;
     cursor: pointer;
 }
+
+/* --- Connection Status Indicator --- */
+.dungeons-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #333;
+    margin: 4px 0;
+    padding-bottom: 2px;
+    flex-shrink: 0;
+}
+
+/* Remove the old border from the h2 since it moved to the header container */
+.dungeons-header h2 {
+    border-bottom: none;
+    margin: 0;
+    padding-bottom: 0;
+}
+
+#connection-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    text-transform: none;
+    font-weight: 600;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Green (Connected) State */
+.status-connected .status-indicator {
+    background-color: #2ecc71; 
+    box-shadow: 0 0 6px #2ecc71;
+}
+.status-connected .status-text {
+    color: #2ecc71;
+}
+
+/* Red (Disconnected) State */
+.status-disconnected .status-indicator {
+    background-color: #e74c3c;
+}
+.status-disconnected .status-text {
+    color: #e74c3c;
+}
