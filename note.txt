@@ -1,7 +1,6 @@
 complétion auto des notes
-visuel si connect autotracking
 map check complete
 voir quel item manque pour quel check
-
+file auto pour oot tracker selon seed 
 
 pyinstaller --onefile --add-data "web;web" -n "OOT-AutoTracker" launcher.py
