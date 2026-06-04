@@ -1,68 +1,110 @@
 import json
 import os
+import autotrack_rmg
 
-# Define the input and output filenames
-# Make sure this matches the exact name of your downloaded JSON file
-input_filename = "track-oot-state.RandoS9-Main.27.05.2026 11_40_08.json"
-output_filename = "modified-track-oot-state.json"
+INPUT_PATH = "../../data/oot-tracker/track-oot-template.json"
+OUTPUT_PATH = "../../data/oot-tracker/track-oot-generated.json"
 
-# The vanilla exit bindings you provided
-vanilla_exit_bindings = {
-    "kokiri_deku_gateway -> deku_kokiri_gateway": "deku_kokiri_gateway -> kokiri_deku_gateway",
-    "dodongo_mountain_gateway -> mountain_dodongo_gateway": "mountain_dodongo_gateway -> dodongo_mountain_gateway",
-    "deku_kokiri_gateway -> kokiri_deku_gateway": "kokiri_deku_gateway -> deku_kokiri_gateway",
-    "mountain_dodongo_gateway -> dodongo_mountain_gateway": "dodongo_mountain_gateway -> mountain_dodongo_gateway",
-    "fountain_jabu_gateway -> jabu_fountain_gateway": "jabu_fountain_gateway -> fountain_jabu_gateway",
-    "jabu_fountain_gateway -> fountain_jabu_gateway": "fountain_jabu_gateway -> jabu_fountain_gateway",
-    "meadow_forest_temple_gateway -> forest_temple_meadow_gateway": "forest_temple_meadow_gateway -> meadow_forest_temple_gateway",
-    "forest_temple_meadow_gateway -> meadow_forest_temple_gateway": "meadow_forest_temple_gateway -> forest_temple_meadow_gateway",
-    "kakariko_well_gateway -> well_kakariko_gateway": "well_kakariko_gateway -> kakariko_well_gateway",
-    "well_kakariko_gateway -> kakariko_well_gateway": "kakariko_well_gateway -> well_kakariko_gateway",
-    "crater_fire_temple_gateway -> fire_temple_crater_gateway": "fire_temple_crater_gateway -> crater_fire_temple_gateway",
-    "fire_temple_crater_gateway -> crater_fire_temple_gateway": "crater_fire_temple_gateway -> fire_temple_crater_gateway",
-    "lake_water_temple_gateway -> water_temple_lake_gateway": "water_temple_lake_gateway -> lake_water_temple_gateway",
-    "water_temple_lake_gateway -> lake_water_temple_gateway": "lake_water_temple_gateway -> water_temple_lake_gateway",
-    "colossus_spirit_temple_gateway -> spirit_temple_colossus_gateway": "spirit_temple_colossus_gateway -> colossus_spirit_temple_gateway",
-    "spirit_temple_colossus_gateway -> colossus_spirit_temple_gateway": "colossus_spirit_temple_gateway -> spirit_temple_colossus_gateway",
-    "graveyard_shadow_temple_gateway -> shadow_temple_graveyard_gateway": "shadow_temple_graveyard_gateway -> graveyard_shadow_temple_gateway",
-    "shadow_temple_graveyard_gateway -> graveyard_shadow_temple_gateway": "graveyard_shadow_temple_gateway -> shadow_temple_graveyard_gateway",
-    "fortress_training_grounds_gateway -> training_grounds_fortress_gateway": "training_grounds_fortress_gateway -> fortress_training_grounds_gateway",
-    "training_grounds_fortress_gateway -> fortress_training_grounds_gateway": "fortress_training_grounds_gateway -> training_grounds_fortress_gateway",
-    "fountain_ice_cavern_gateway -> ice_cavern_fountain_gateway": "ice_cavern_fountain_gateway -> fountain_ice_cavern_gateway",
-    "ice_cavern_fountain_gateway -> fountain_ice_cavern_gateway": "fountain_ice_cavern_gateway -> ice_cavern_fountain_gateway"
+GATEWAYS = {
+    "Deku": {
+        "inbound": "kokiri_deku_gateway -> deku_kokiri_gateway",
+        "outbound": "deku_kokiri_gateway -> kokiri_deku_gateway"
+    },
+    "DC": {
+        "inbound": "mountain_dodongo_gateway -> dodongo_mountain_gateway",
+        "outbound": "dodongo_mountain_gateway -> mountain_dodongo_gateway"
+    },
+    "Jabu": {
+        "inbound": "fountain_jabu_gateway -> jabu_fountain_gateway",
+        "outbound": "jabu_fountain_gateway -> fountain_jabu_gateway"
+    },
+    "Forest": {
+        "inbound": "meadow_forest_temple_gateway -> forest_temple_meadow_gateway",
+        "outbound": "forest_temple_meadow_gateway -> meadow_forest_temple_gateway"
+    },
+    "Fire": {
+        "inbound": "crater_fire_temple_gateway -> fire_temple_crater_gateway",
+        "outbound": "fire_temple_crater_gateway -> crater_fire_temple_gateway"
+    },
+    "Water": {
+        "inbound": "lake_water_temple_gateway -> water_temple_lake_gateway",
+        "outbound": "water_temple_lake_gateway -> lake_water_temple_gateway"
+    },
+    "Spirit": {
+        "inbound": "colossus_spirit_temple_gateway -> spirit_temple_colossus_gateway",
+        "outbound": "spirit_temple_colossus_gateway -> colossus_spirit_temple_gateway"
+    },
+    "Shadow": {
+        "inbound": "graveyard_shadow_temple_gateway -> shadow_temple_graveyard_gateway",
+        "outbound": "shadow_temple_graveyard_gateway -> graveyard_shadow_temple_gateway"
+    },
+    "BotW": {
+        "inbound": "kakariko_well_gateway -> well_kakariko_gateway",
+        "outbound": "well_kakariko_gateway -> kakariko_well_gateway"
+    },
+    "Ice": {
+        "inbound": "fountain_ice_cavern_gateway -> ice_cavern_fountain_gateway",
+        "outbound": "ice_cavern_fountain_gateway -> fountain_ice_cavern_gateway"
+    },
+    "GTG": {
+        "inbound": "fortress_training_grounds_gateway -> training_grounds_fortress_gateway",
+        "outbound": "training_grounds_fortress_gateway -> fortress_training_grounds_gateway"
+    }
 }
 
 def modify_tracker_json():
-    # Check if the file exists before trying to open it
-    if not os.path.exists(input_filename):
-        print(f"Error: Could not find '{input_filename}'. Please ensure it is in the same folder as this script.")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    absolute_input = os.path.abspath(os.path.join(script_dir, INPUT_PATH))
+    absolute_output = os.path.abspath(os.path.join(script_dir, OUTPUT_PATH))
+
+    print("Connecting to RMG...")
+    if not autotrack_rmg.find_game_block():
+        print("Error: Could not find the game data in RMG. Make sure RMG is running and you are loaded into a save.")
+        return
+    
+    live_data = autotrack_rmg.get_dungeon_data()
+    if not live_data or "locations" not in live_data:
+        print("Error: Could not extract dungeon data from memory.")
+        return
+        
+    print("\nLive Dungeon Mapping Found:")
+    for loc, dest in live_data["locations"].items():
+        print(f"  {loc} -> {dest}")
+
+    dynamic_bindings = {}
+    for entrance, destination in live_data["locations"].items():
+        if entrance in GATEWAYS and destination in GATEWAYS:
+            overworld_door = GATEWAYS[entrance]["inbound"]
+            dungeon_interior = GATEWAYS[destination]["outbound"]
+            dynamic_bindings[overworld_door] = dungeon_interior
+            dynamic_bindings[dungeon_interior] = overworld_door
+
+    if not os.path.exists(absolute_input):
+        print(f"\nError: Could not find '{absolute_input}'.")
         return
 
-    print(f"Loading '{input_filename}'...")
-    
-    # Read the original JSON file
-    with open(input_filename, 'r', encoding='utf-8') as file:
+    print(f"\nLoading '{absolute_input}'...")
+    with open(absolute_input, 'r', encoding='utf-8') as file:
         try:
             tracker_data = json.load(file)
         except json.JSONDecodeError:
             print("Error: The file is not a valid JSON. Please check the contents.")
             return
 
-    # Update the exitBindings inside the 'data' object
     if "data" in tracker_data:
-        tracker_data["data"]["exitBindings"] = vanilla_exit_bindings
-        print("Successfully updated 'exitBindings'.")
+        tracker_data["data"]["exitBindings"] = dynamic_bindings
+        print(f"Successfully generated and injected {len(dynamic_bindings)} exit bindings.")
     else:
         print("Error: Could not find the 'data' object in the JSON structure.")
         return
 
-    # Write the modified dictionary to a new JSON file
-    print(f"Saving modified data to '{output_filename}'...")
-    with open(output_filename, 'w', encoding='utf-8') as file:
-        # indent=4 keeps the JSON readable and formatted nicely
+    os.makedirs(os.path.dirname(absolute_output), exist_ok=True)
+
+    print(f"Saving modified data to '{absolute_output}'...")
+    with open(absolute_output, 'w', encoding='utf-8') as file:
         json.dump(tracker_data, file, indent=4)
         
-    print("Done! You can now import the modified file into your tracker.")
+    print("Done! You can now import the generated file into your tracker.")
 
 if __name__ == "__main__":
     modify_tracker_json()

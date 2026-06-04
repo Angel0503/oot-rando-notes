@@ -1,7 +1,7 @@
 {
-    "name": "RandoS9-Main",
+    "name": "OOT-Tracker Save",
     "version": 38,
-    "timestamp": "2026-05-27T11:40:08.622Z",
+    "timestamp": "2026-05-15T14:06:40.585Z",
     "autosave": false,
     "notes": "",
     "meta": {
@@ -10,7 +10,7 @@
     "data": {
         "options": {
             "logic_rules": "logic_rules_glitchless",
-            "starting_age": "child",
+            "starting_age": "adult",
             "starting_tod": "tod_default",
             "starting_hearts": 3,
             "bombchu_logic": false,
@@ -447,7 +447,7 @@
             "excluded_location[woods.g_gossip_grotto_woods]": false,
             "excluded_location[castle_town.c_maron]": false,
             "excluded_location[castle_town.c_zelda]": false,
-            "excluded_location[castle_town.c_child_shooting]": true,
+            "excluded_location[castle_town.c_child_shooting]": false,
             "excluded_location[castle_town.c_bowling_1]": false,
             "excluded_location[castle_town.c_bowling_2]": false,
             "excluded_location[castle_town.c_chest_game]": false,
@@ -474,7 +474,7 @@
             "excluded_location[kakariko.c_redead_grotto]": false,
             "excluded_location[kakariko.c_cow_hp]": false,
             "excluded_location[kakariko.c_man_roof]": false,
-            "excluded_location[kakariko.c_adult_shooting]": true,
+            "excluded_location[kakariko.c_adult_shooting]": false,
             "excluded_location[kakariko.c_song_storm]": false,
             "excluded_location[kakariko.c_windmill_hp]": false,
             "excluded_location[kakariko.c_race_1]": false,
@@ -2213,7 +2213,7 @@
             "eyedrops": 0,
             "claim_check": 0,
             "sword_kokiri": 0,
-            "sword_master": 0,
+            "sword_master": 1,
             "sword_biggoron": 0,
             "sword_medigoron": 0,
             "shield_kokiri": 0,
@@ -2346,7 +2346,30 @@
             "zora_letter": 0,
             "zeldas_letter": 1
         },
-        "exitBindings": {},
+        "exitBindings": {
+            "kokiri_deku_gateway -> deku_kokiri_gateway": "water_temple_lake_gateway -> lake_water_temple_gateway",
+            "water_temple_lake_gateway -> lake_water_temple_gateway": "kokiri_deku_gateway -> deku_kokiri_gateway",
+            "mountain_dodongo_gateway -> dodongo_mountain_gateway": "spirit_temple_colossus_gateway -> colossus_spirit_temple_gateway",
+            "spirit_temple_colossus_gateway -> colossus_spirit_temple_gateway": "mountain_dodongo_gateway -> dodongo_mountain_gateway",
+            "fountain_jabu_gateway -> jabu_fountain_gateway": "well_kakariko_gateway -> kakariko_well_gateway",
+            "well_kakariko_gateway -> kakariko_well_gateway": "fountain_jabu_gateway -> jabu_fountain_gateway",
+            "meadow_forest_temple_gateway -> forest_temple_meadow_gateway": "fire_temple_crater_gateway -> crater_fire_temple_gateway",
+            "fire_temple_crater_gateway -> crater_fire_temple_gateway": "meadow_forest_temple_gateway -> forest_temple_meadow_gateway",
+            "crater_fire_temple_gateway -> fire_temple_crater_gateway": "forest_temple_meadow_gateway -> meadow_forest_temple_gateway",
+            "forest_temple_meadow_gateway -> meadow_forest_temple_gateway": "crater_fire_temple_gateway -> fire_temple_crater_gateway",
+            "lake_water_temple_gateway -> water_temple_lake_gateway": "dodongo_mountain_gateway -> mountain_dodongo_gateway",
+            "dodongo_mountain_gateway -> mountain_dodongo_gateway": "lake_water_temple_gateway -> water_temple_lake_gateway",
+            "graveyard_shadow_temple_gateway -> shadow_temple_graveyard_gateway": "shadow_temple_graveyard_gateway -> graveyard_shadow_temple_gateway",
+            "shadow_temple_graveyard_gateway -> graveyard_shadow_temple_gateway": "graveyard_shadow_temple_gateway -> shadow_temple_graveyard_gateway",
+            "colossus_spirit_temple_gateway -> spirit_temple_colossus_gateway": "deku_kokiri_gateway -> kokiri_deku_gateway",
+            "deku_kokiri_gateway -> kokiri_deku_gateway": "colossus_spirit_temple_gateway -> spirit_temple_colossus_gateway",
+            "kakariko_well_gateway -> well_kakariko_gateway": "jabu_fountain_gateway -> fountain_jabu_gateway",
+            "jabu_fountain_gateway -> fountain_jabu_gateway": "kakariko_well_gateway -> well_kakariko_gateway",
+            "fountain_ice_cavern_gateway -> ice_cavern_fountain_gateway": "training_grounds_fortress_gateway -> fortress_training_grounds_gateway",
+            "training_grounds_fortress_gateway -> fortress_training_grounds_gateway": "fountain_ice_cavern_gateway -> ice_cavern_fountain_gateway",
+            "fortress_training_grounds_gateway -> training_grounds_fortress_gateway": "ice_cavern_fountain_gateway -> fountain_ice_cavern_gateway",
+            "ice_cavern_fountain_gateway -> fountain_ice_cavern_gateway": "fortress_training_grounds_gateway -> training_grounds_fortress_gateway"
+        },
         "areaHints": {},
         "areaActiveLists": {
             "deku": "v",
@@ -2409,12 +2432,16 @@
             "platform": {
                 "brands": [
                     {
-                        "brand": "Not/A)Brand",
-                        "version": "99"
-                    },
-                    {
                         "brand": "Chromium",
                         "version": "148"
+                    },
+                    {
+                        "brand": "Google Chrome",
+                        "version": "148"
+                    },
+                    {
+                        "brand": "Not/A)Brand",
+                        "version": "99"
                     }
                 ],
                 "mobile": false,
@@ -2425,12 +2452,16 @@
                 "mobile": false,
                 "brands": [
                     {
-                        "brand": "Not/A)Brand",
-                        "version": "99"
-                    },
-                    {
                         "brand": "Chromium",
                         "version": "148"
+                    },
+                    {
+                        "brand": "Google Chrome",
+                        "version": "148"
+                    },
+                    {
+                        "brand": "Not/A)Brand",
+                        "version": "99"
                     }
                 ]
             }
@@ -2448,7 +2479,7 @@
         "settings": {
             "language": "en_us",
             "font": "font_default",
-            "layout": "essential-map-key",
+            "layout": "map-compact",
             "detached_window_background": "#000000",
             "use_custom_logic": false,
             "autosave_time": 10,
