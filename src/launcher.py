@@ -5,6 +5,8 @@ import websockets
 
 from back.autotrack_rmg import find_game_block, tracker_server
 from back.web_server import start_http_server
+from back.patch_tracker import modify_tracker_json
+
 async def main():
     print("======================================")
     print("  Ocarina of Time RMG Auto-Tracker    ")
@@ -15,6 +17,10 @@ async def main():
 
     if find_game_block():
         print("Ready! Monitoring game memory...")
+
+        print("\n[+] Generating initial tracker JSON...")
+        modify_tracker_json()
+
         async with websockets.serve(tracker_server, "127.0.0.1", 8080):
             await asyncio.Future() 
     else:
