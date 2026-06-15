@@ -19,7 +19,7 @@ async def main():
         print("Ready! Monitoring game memory...")
 
         print("\n[+] Generating initial tracker JSON...")
-        modify_tracker_json()
+        await modify_tracker_json()
 
         async with websockets.serve(tracker_server, "127.0.0.1", 8080):
             await asyncio.Future() 
