@@ -79,8 +79,12 @@ for (let i = 0; i < 8; i++) {
 
     const row = document.createElement('div');
     row.className = 'path-row';
+    
     row.innerHTML = `
-        <input type="checkbox" class="path-checkbox" title="Mark as resolved">
+        <div class="path-controls">
+            <input type="checkbox" class="path-checkbox" title="Mark as resolved">
+            <div class="drag-handle" title="Drag to reorder">☰</div>
+        </div>
         <textarea placeholder="Source"></textarea>
         <span class="arrow">→</span>
         <textarea placeholder="Destination"></textarea>
@@ -107,11 +111,14 @@ for (let i = 0; i < 8; i++) {
     });
 
     itemRow.appendChild(delBtn);
-    createItemDropdown(itemRow, delBtn);
+    createItemDropdown(itemRow, delBtn); 
 
     group.appendChild(row);
     group.appendChild(itemRow);
     pathContainer.appendChild(group);
+
+    const dragHandle = row.querySelector('.drag-handle');
+    setupDragAndDrop(group, dragHandle);
 
     const checkbox = row.querySelector('.path-checkbox');
     checkbox.addEventListener('change', function() {
@@ -255,3 +262,52 @@ trackerSocket.onerror = function(error) {
     statusContainer.className = 'status-disconnected';
     statusText.innerText = 'Disconnected';
 };
+
+// ==========================================
+// DRAG AND DROP REORDERING LOGIC
+// ==========================================
+
+function setupDragAndDrop(pathRow, dragHandle) {
+    dragHandle.addEventListener('mousedown', () => { pathRow.setAttribute('draggable', 'true'); });
+    dragHandle.addEventListener('mouseup', () => { pathRow.removeAttribute('draggable'); });
+    dragHandle.addEventListener('mouseleave', () => { pathRow.removeAttribute('draggable'); });
+
+    pathRow.addEventListener('dragstart', (e) => {
+        pathRow.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', ''); 
+    });
+
+    pathRow.addEventListener('dragend', () => {
+        pathRow.classList.remove('dragging');
+        pathRow.removeAttribute('draggable');
+    });
+}
+
+const pathContainerDrag = document.getElementById('path-container');
+
+pathContainerDrag.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const draggingRow = document.querySelector('.dragging');
+    if (!draggingRow) return;
+
+    const afterElement = getDragAfterElement(pathContainerDrag, e.clientY);
+    if (afterElement == null) {
+        pathContainerDrag.appendChild(draggingRow);
+    } else {
+        pathContainerDrag.insertBefore(draggingRow, afterElement);
+    }
+});
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.path-group:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}

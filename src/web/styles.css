@@ -103,7 +103,7 @@ select:focus, textarea:focus {
     display: flex;
     gap: 4px;
     flex-wrap: wrap; 
-    padding-left: 22px; 
+    padding-left: 32px; 
     margin-top: 2px;
     align-items: center;
 }
@@ -118,20 +118,25 @@ select:focus, textarea:focus {
 
 /* Delete Button Styling */
 .delete-item-btn {
-    background: none;
-    border: none;
-    color: #d9534f;
-    font-size: 14px;
+    width: 24px;         
+    margin-right: 8px;   
+    flex-shrink: 0;      
+    
+    /* Keep any existing styling you had for this button below! */
+    background-color: #2b2b36;
+    color: #fca311;
+    border: 1px solid #444;
+    border-radius: 3px;
     cursor: pointer;
-    padding: 0 4px;
-    height: 22px;
+    font-size: 12px;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 }
 
 .delete-item-btn:hover {
-    color: #ff7675;
+    background-color: #444;
+    color: #fff;
 }
 
 /* Path Checkbox Styling */
@@ -216,7 +221,6 @@ select:focus, textarea:focus {
     flex-shrink: 0;
 }
 
-/* Remove the old border from the h2 since it moved to the header container */
 .dungeons-header h2 {
     border-bottom: none;
     margin: 0;
@@ -254,4 +258,47 @@ select:focus, textarea:focus {
 }
 .status-disconnected .status-text {
     color: #e74c3c;
+}
+
+/* DRAG AND DROP REORDERING STYLES */
+.drag-handle {
+    cursor: grab;
+    font-size: 12px;
+    color: #888;
+    user-select: none;
+    width: 20px;      
+    height: 16px;
+    background-color: #2b2b36;
+    border: 1px solid #444;
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.drag-handle:hover {
+    background-color: #444;
+    color: #fff;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.path-group.dragging {
+    opacity: 0.4;
+    border: 1px dashed #fca311;
+    background-color: #1e1e24;
+}
+
+.path-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 24px;        
+    margin-right: 8px;   
+    flex-shrink: 0;      
 }
