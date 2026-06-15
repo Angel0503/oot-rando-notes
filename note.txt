@@ -3,4 +3,4 @@ map check complete
 voir quel item manque pour quel check
 file auto pour oot tracker selon seed 
 
-pyinstaller --onefile --add-data "web;web" -n "OOT-AutoTracker" launcher.py
+pyinstaller --onefile --add-data "web;web" -n "OOTR-AutoTracker" launcher.py
