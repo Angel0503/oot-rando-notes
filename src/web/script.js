@@ -6,17 +6,32 @@ const gameItems = [
     "Strength 1", "Strength 2", "Strength 3", "KokiriSword", "BiggoronSword",
     "MirrorShield", "ZoraTunic", "GoronTunic", "IronBoots", "HoverBoots",
     "Dins", "Farores", "Nayrus", "Magic", "Fire", "Ice", "Light", "Slingshot",
-    "Boomerang", "Lens", "Bottle", "ZoraLetter"
+    "Boomerang", "Lens", "Bottle", "ZoraLetter", "Rien", "BK", "Key"
 ];
 const gameSongs = [
-    "ZeldasLullaby", "EponasSong", "SunsSong", "SariasSong", "SongofTime",
-    "SongofStorms", "MinuetofForest", "BoleroofFire", "SerenadeofWater",
-    "NocturneofShadow", "RequiemofSpirit", "PreludeofLight"
+    "ZL", "Epona", "Saria", "Sun", "Time", "Storms",
+    "Minuet", "Bolero", "Serenade", "Nocturne", "Requiem", "Prelude"
 ];
 const allItemsAndSongs = [...gameItems, ...gameSongs];
 
+// Path hints: source = dungeon or place, destination = boss or Evil
+const PATH_SOURCES = [
+    // dungeons
+    "Deku", "DC", "Jabu", "Forest", "Fire", "Water", "Shadow", "Spirit", "BotW", "Ice", "GTG",
+    // places
+    "KF", "LW", "SFM", "HF", "LLR",
+    "Market", "TOT", "Hyrule Castle", "Ganon's Castle", "KAK", "Graveyard",
+    "DMT", "GC", "DMC", "ZR", "ZD", "ZF",
+    "Lake", "GV", "GF", "Wasteland", "Colossus"
+];
+const PATH_DESTINATIONS = [
+    "Gohma", "Dodongo", "Barinade", "PG",
+    "Volvagia", "Morpha", "Bongo", "Twin", "Evil"
+];
+
 // Hint layout (edit these lists to change the number of fields)
 const ALWAYS_HINTS = ["Biggoron", "Frogs 2", "Skull Mask", "AD", "Kak song"];
+const SONG_HINTS = ["AD", "Kak song"]; // these rows get a song-only dropdown
 const SKULL_HINTS = ["30 Skulls", "40 Skulls", "50 Skulls"];
 const PATH_COUNT = 5;
 const IMPORTANT_COUNT = 2;
@@ -31,6 +46,7 @@ function makeTextarea(placeholder) {
     const t = document.createElement('textarea');
     t.className = 'hint-input';
     t.rows = 1;
+    t.setAttribute('wrap', 'off'); // single line: text never wraps, so it can't scroll/shift vertically
     t.placeholder = placeholder;
     return t;
 }
@@ -87,6 +103,58 @@ function makePairRow(locPlaceholder = "Location", itemPlaceholder = "Item") {
     row.appendChild(makeItemInput(itemPlaceholder));
     return row;
 }
+
+// Closed list (dropdown) with a blank first option
+function makeSelect(options, placeholder) {
+    const s = document.createElement('select');
+    s.className = 'hint-input';
+    const first = document.createElement('option');
+    first.value = "";
+    first.textContent = placeholder;
+    s.appendChild(first);
+    options.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o;
+        opt.textContent = o;
+        s.appendChild(opt);
+    });
+    return s;
+}
+
+// Text input with autocomplete on dungeons / places (you can still type anything)
+function makeSourceInput() {
+    const i = document.createElement('input');
+    i.type = 'text';
+    i.className = 'hint-input';
+    i.setAttribute('list', 'source-list');
+    i.setAttribute('autocomplete', 'off');
+    i.placeholder = "Source";
+    return i;
+}
+
+// "[ Location ] → [ 1-9 ]"  (important checks: number of items)
+function makeCountRow(locPlaceholder = "Location") {
+    const row = document.createElement('div');
+    row.className = 'pair-row pair-count';
+    row.appendChild(makeTextarea(locPlaceholder));
+    row.appendChild(makeArrow());
+    row.appendChild(makeSelect(["1", "2", "3", "4", "5", "6", "7", "8", "9"], "#"));
+    return row;
+}
+
+const sourceList = document.createElement('datalist');
+sourceList.id = 'source-list';
+PATH_SOURCES.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    sourceList.appendChild(opt);
+});
+document.body.appendChild(sourceList);
+
+// No line breaks in the fields (Enter would scroll the text inside a 1-line box)
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.matches('textarea')) e.preventDefault();
+});
 
 // Highlight filled fields
 document.addEventListener('input', (e) => {
@@ -172,10 +240,10 @@ for (let i = 0; i < PATH_COUNT; i++) {
             <input type="checkbox" class="path-checkbox" title="Mark as resolved">
             <div class="drag-handle" title="Drag to reorder">☰</div>
         </div>
-        <textarea class="hint-input" rows="1" placeholder="Source"></textarea>
-        <span class="arrow">→</span>
-        <textarea class="hint-input" rows="1" placeholder="Destination"></textarea>
     `;
+    row.appendChild(makeSourceInput());
+    row.appendChild(makeArrow());
+    row.appendChild(makeSelect(PATH_DESTINATIONS, "Boss / Evil"));
 
     const itemRow = document.createElement('div');
     itemRow.className = 'item-row';
@@ -229,7 +297,8 @@ for (let i = 0; i < PATH_COUNT; i++) {
 // ==========================================
 const alwaysContainer = document.getElementById('always-container');
 ALWAYS_HINTS.forEach(name => {
-    alwaysContainer.appendChild(makeLabelledRow(name, makeItemInput("Item")));
+    const field = SONG_HINTS.includes(name) ? makeSelect(gameSongs, "Song") : makeItemInput("Item");
+    alwaysContainer.appendChild(makeLabelledRow(name, field));
 });
 
 // ==========================================
@@ -246,7 +315,7 @@ SKULL_HINTS.forEach(name => {
 // ==========================================
 const importantContainer = document.getElementById('important-container');
 for (let i = 0; i < IMPORTANT_COUNT; i++) {
-    importantContainer.appendChild(makePairRow("Location", "Item"));
+    importantContainer.appendChild(makeCountRow("Location"));
 }
 
 const sometimesContainer = document.getElementById('sometimes-container');
@@ -254,13 +323,21 @@ for (let i = 0; i < SOMETIMES_COUNT; i++) {
     sometimesContainer.appendChild(makePairRow("Location", "Item"));
 }
 
-// A dual hint = two locations that both hold good items
+// A dual hint = ONE location with TWO checks
 const dualContainer = document.getElementById('dual-container');
 for (let i = 0; i < DUAL_COUNT; i++) {
     const group = document.createElement('div');
     group.className = 'dual-group';
-    group.appendChild(makePairRow("Location A", "Item"));
-    group.appendChild(makePairRow("Location B", "Item"));
+    const loc = makeTextarea("Location");
+    loc.classList.add('dual-location');
+    loc.setAttribute('wrap', 'soft'); // the tall location box may wrap on 2 lines
+    const items = document.createElement('div');
+    items.className = 'dual-items';
+    items.appendChild(makeItemInput("Check 1"));
+    items.appendChild(makeItemInput("Check 2"));
+    group.appendChild(loc);
+    group.appendChild(makeArrow());
+    group.appendChild(items);
     dualContainer.appendChild(group);
 }
 
