@@ -3,6 +3,8 @@ import array
 import json
 import asyncio
 import websockets
+import threading
+import time
 
 ENTRANCE_ORDER = [
     "Deku", "DC", "Jabu", "Forest", "Fire", "Water", 
@@ -32,7 +34,6 @@ pm = None
 
 def find_game_block():
     global GAME_BASE_ADDRESS, GAME_REGION_SIZE, pm
-    print("Scanning for RMG Memory Block...")
     try:
         pm = pymem.Pymem("RMG.exe")
     except Exception:
@@ -132,3 +133,30 @@ async def tracker_server(websocket):
         except websockets.exceptions.ConnectionClosed:
             print("\n[-] HTML Tracker Disconnected.")
             break
+
+
+# ==========================================
+# SHARED POLLER (one memory read per second, used by the overlay window)
+# ==========================================
+LATEST_DATA = None
+
+def get_latest():
+    """Last dungeon layout read from memory (None until the first successful read)"""
+    return LATEST_DATA
+
+def start_poller(interval=1.0):
+    def loop():
+        global LATEST_DATA
+        last_printed = None
+        while True:
+            data = get_dungeon_data()
+            if data:
+                LATEST_DATA = data
+                if data != last_printed:
+                    last_printed = data
+                    print("\n[+] New Dungeon Layout:")
+                    for loc, dest in data["locations"].items():
+                        print(f"    {loc.ljust(8)} -> {dest}")
+            time.sleep(interval)
+
+    threading.Thread(target=loop, daemon=True).start()

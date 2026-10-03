@@ -34,7 +34,7 @@ GATEWAYS = {
     "GTG": {"inbound": "fortress_training_grounds_gateway -> training_grounds_fortress_gateway", "outbound": "training_grounds_fortress_gateway -> fortress_training_grounds_gateway"}
 }
 
-def modify_tracker_json():
+async def modify_tracker_json():
     # Safely resolve absolute paths based on where this script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
     absolute_input = os.path.abspath(os.path.join(script_dir, INPUT_PATH))
