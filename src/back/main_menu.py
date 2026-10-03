@@ -6,7 +6,7 @@ import webbrowser
 
 from back import autotrack_rmg, patch_tracker
 from back.dungeon_overlay import DungeonOverlay
-from back.web_server import start_http_server
+from back.web_server import create_http_server
 
 BG = "#1e1e24"
 ROW_BG = "#2b2b36"
@@ -14,7 +14,6 @@ TEXT = "#e0e0e0"
 ACCENT = "#fca311"
 GREEN = "#2ecc71"
 RED = "#e74c3c"
-WEB_URL = "http://127.0.0.1:8000"
 
 
 class MainMenu:
@@ -26,8 +25,15 @@ class MainMenu:
 
         self.overlay = None
 
-        # The local web server runs quietly in the background
-        threading.Thread(target=start_http_server, daemon=True).start()
+        # The local web server runs quietly in the background. If port 8000 is taken
+        # (e.g. an antivirus sandbox copy of the app), the next free port is used.
+        self.http_port = None
+        try:
+            httpd, self.http_port = create_http_server()
+            threading.Thread(target=httpd.serve_forever, daemon=True).start()
+            print(f"[+] Web tracker available at http://127.0.0.1:{self.http_port}")
+        except OSError as e:
+            print(f"[-] Could not start the web server: {e}")
 
         tk.Label(self.root, text="OOT RANDO TRACKER", font=("Segoe UI", 16, "bold"),
                  fg=ACCENT, bg=BG).pack(pady=(0, 2))
@@ -65,7 +71,10 @@ class MainMenu:
 
     # ---- Actions ----
     def open_web(self):
-        webbrowser.open(WEB_URL)
+        if self.http_port is None:
+            self._set_message("The web server could not start (no free port). See the console.", RED)
+            return
+        webbrowser.open(f"http://127.0.0.1:{self.http_port}")
 
     def open_overlay(self):
         if self.overlay and self.overlay.exists():
