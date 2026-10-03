@@ -7,7 +7,7 @@ const gameItems = [
     "MirrorShield", "ZoraTunic", "GoronTunic", "IronBoots", "HoverBoots",
     "Dins", "Farores", "Nayrus", "Magic", "Fire", "Ice", "Light", "Slingshot",
     "Boomerang", "Lens", "Bottle", "ZoraLetter", "Rien", "BK", "Key"
-];
+].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base', numeric: true }));
 const gameSongs = [
     "ZL", "Epona", "Saria", "Sun", "Time", "Storms",
     "Minuet", "Bolero", "Serenade", "Nocturne", "Requiem", "Prelude"
