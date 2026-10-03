@@ -8,36 +8,56 @@
 </head>
 <body>
 
-    <h2>Barrens</h2>
-    <div class="barren-container">
-        <textarea placeholder="Barren area 1..."></textarea>
-        <textarea placeholder="Barren area 2..."></textarea>
-    </div>
+    <datalist id="item-list"></datalist>
 
-    <h2>Path</h2>
-    <div id="path-container">
-        </div>
+    <main id="layout">
 
-    <div class="bottom-split">
-        <div class="notes-section">
-            <h2>Notes</h2>
-            <div id="notes-container">
-                </div>
-        </div>
-        
-        <div class="dungeons-section">
-            <div class="dungeons-header">
-                <h2>Dungeons</h2>
-                <div id="connection-status" class="status-disconnected">
-                    <span class="status-indicator"></span>
-                    <span class="status-text">Disconnected</span>
-                </div>
+        <section>
+            <h2>Path (5)</h2>
+            <div id="path-container"></div>
+        </section>
+
+        <section>
+            <h2>Barren (2)</h2>
+            <div class="barren-container">
+                <textarea class="hint-input" rows="1" placeholder="Barren area 1..."></textarea>
+                <textarea class="hint-input" rows="1" placeholder="Barren area 2..."></textarea>
             </div>
-            
-            <div id="dungeon-container">
-                </div>
+        </section>
+
+        <div class="two-col">
+            <section>
+                <h2>Always</h2>
+                <div id="always-container"></div>
+            </section>
+            <section>
+                <h2>Arrows &amp; Skulls</h2>
+                <div id="special-container"></div>
+            </section>
         </div>
-    </div>
+
+        <section>
+            <h2>Important Checks (2)</h2>
+            <div id="important-container"></div>
+        </section>
+
+        <section>
+            <h2>Sometimes (4)</h2>
+            <div id="sometimes-container"></div>
+        </section>
+
+        <section>
+            <h2>Dual (2)</h2>
+            <div id="dual-container"></div>
+        </section>
+
+        <section>
+            <h2>Other Notes</h2>
+            <div id="notes-container"></div>
+        </section>
+
+
+    </main>
 
     <script src="script.js"></script>
 </body>

@@ -1,35 +1,39 @@
 import threading
-import webbrowser
-import asyncio
-import websockets
+import time
 
-from back.autotrack_rmg import find_game_block, tracker_server
-from back.web_server import start_http_server
-from back.patch_tracker import modify_tracker_json
+from back import app_setup, patch_tracker
+from back.autotrack_rmg import find_game_block, start_poller
+from back.main_menu import MainMenu
 
-async def main():
+RETRY_SECONDS = 10
+
+
+def connect_to_rmg():
+    """Keeps looking for RMG in the background; the menu works meanwhile."""
+    print("Scanning for RMG Memory Block...")
+    while not find_game_block():
+        time.sleep(RETRY_SECONDS)
+
+    print("Ready! Monitoring game memory...")
+    start_poller()
+
+
+def main():
     print("======================================")
     print("  Ocarina of Time RMG Auto-Tracker    ")
     print("======================================\n")
-    
-    threading.Thread(target=start_http_server, daemon=True).start()
-    webbrowser.open("http://127.0.0.1:8000")
 
-    if find_game_block():
-        print("Ready! Monitoring game memory...")
+    # Packaged exe: create the data folder + template next to the exe (no-op from source)
+    app_setup.prepare(patch_tracker)
 
-        print("\n[+] Generating initial tracker JSON...")
-        await modify_tracker_json()
+    threading.Thread(target=connect_to_rmg, daemon=True).start()
 
-        async with websockets.serve(tracker_server, "127.0.0.1", 8080):
-            await asyncio.Future() 
-    else:
-        print("\n[!] Could not find the game data.")
-        print("[!] Make sure RMG is running and you are loaded into your save file!")
-        input("\nPress Enter to exit...")
+    # Tk must run in the main thread. Closing the menu quits the program.
+    MainMenu().run()
+
 
 if __name__ == "__main__":
     try:
-        asyncio.run(main())
+        main()
     except KeyboardInterrupt:
         pass

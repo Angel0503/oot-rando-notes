@@ -1,290 +1,196 @@
-/* Dark theme, 100% viewport height, NO scrolling */
+/* Dark theme, designed for a narrow, tall window (~30% of screen width) */
+/* UI scale: all sizes are in rem. 17.6px = the old "110% browser zoom" look at 100% zoom.
+   Change this one value to rescale everything (16px = 100%, 19.2px = 120%). */
+html { font-size: 17.6px; scrollbar-width: thin; scrollbar-color: #444 #1e1e24; }
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #1e1e24;
     color: #e0e0e0;
     margin: 0;
-    padding: 5px 10px;
+    padding: 0.25rem 0.5rem 0.625rem 0.5rem;
     box-sizing: border-box;
-    font-size: 14px; 
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    font-size: 0.8125rem;
+    min-height: 100vh;
+    overflow-x: hidden;
     text-transform: uppercase;
 }
 
 h2 {
     color: #fca311;
     border-bottom: 1px solid #333;
-    margin: 4px 0;
-    padding-bottom: 2px;
-    font-size: 16px; 
-    flex-shrink: 0;
+    margin: 0.3125rem 0 0.1875rem 0;
+    padding-bottom: 0.0625rem;
+    font-size: 0.8125rem;
 }
 
-/* Generic input styling */
-textarea, select {
+#layout { display: flex; flex-direction: column; }
+#layout > section:first-child h2 { margin-top: 0.125rem; }
+
+/* Always | Arrows & Skulls side by side */
+.two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.625rem;
+}
+.two-col > section { min-width: 0; }
+
+/* --- Inputs --- */
+textarea, select, input[type="text"] {
     background-color: #2b2b36;
     color: #fff;
     border: 1px solid #444;
-    border-radius: 3px;
-    padding: 2px 4px;
+    border-radius: 0.1875rem;
+    padding: 0.125rem 0.25rem;
     box-sizing: border-box;
     resize: none;
-    font-size: 14px; 
+    font-size: 0.8125rem;
     font-family: inherit;
     text-transform: uppercase;
 }
 
-textarea {
-    width: 100%;
-}
+textarea { width: 100%; }
 
-select:focus, textarea:focus {
+select:focus, textarea:focus, input[type="text"]:focus {
     outline: none;
     border-color: #fca311;
 }
 
+.hint-input {
+    height: 1.375rem;
+    line-height: 0.875rem;
+    padding: 0.1875rem 0.25rem;
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+}
+.hint-input.has-value { border-left: 0.1875rem solid #fca311; }
+
 .arrow {
     color: #888;
     font-weight: bold;
-    font-size: 16px; 
-    padding: 0 4px;
+    font-size: 0.875rem;
+    padding: 0 0.1875rem;
     display: flex;
     align-items: center;
 }
 
-/* --- Barren Section --- */
-.barren-container {
-    display: flex;
-    flex-direction: row; 
-    gap: 10px; 
-    width: 100%;
-    flex: none; 
-    height: 28px; 
-}
+/* --- Barren --- */
+.barren-container { display: flex; gap: 0.375rem; }
 
-.barren-container textarea {
-    flex: 1; 
-    padding-top: 4px; 
-}
-
-/* --- Path Section --- */
-#path-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    width: 100%;
-    flex: none; 
-}
-
-.path-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 2px;
-}
-
-.path-row {
-    display: flex;
-    align-items: stretch;
-    flex: none;
-    height: 28px; 
-}
-
-.path-row textarea {
-    flex: 1;
-    margin: 0;
-    padding-top: 4px; 
-}
-
-/* Sub-row for the item dropdowns */
-.item-row {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap; 
-    padding-left: 32px; 
-    margin-top: 2px;
+/* --- Label + field rows --- */
+.hint-row {
+    display: grid;
+    grid-template-columns: 4.875rem minmax(0, 1fr) 1.375rem;
+    gap: 0.25rem;
     align-items: center;
+    margin-bottom: 0.125rem;
 }
-
-.item-select {
-    flex: none;
-    width: auto; 
-    height: 22px;
-    font-size: 11px; 
-    cursor: pointer;
-}
-
-/* Delete Button Styling */
-.delete-item-btn {
-    width: 24px;         
-    margin-right: 8px;   
-    flex-shrink: 0;      
-    
-    /* Keep any existing styling you had for this button below! */
-    background-color: #2b2b36;
-    color: #fca311;
-    border: 1px solid #444;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.delete-item-btn:hover {
-    background-color: #444;
-    color: #fff;
-}
-
-/* Path Checkbox Styling */
-.path-checkbox {
-    margin: 0 6px 0 2px;
-    align-self: center; 
-    cursor: pointer;
-    width: 16px;
-    height: 16px;
-    accent-color: #fca311; 
-}
-
-/* The transparent state for completed paths */
-.resolved {
-    opacity: 0.4;
-    transition: opacity 0.2s ease-in-out; 
-}
-
-/* --- Bottom Side-by-Side Section --- */
-.bottom-split {
-    flex: 1; 
-    display: flex;
-    gap: 10px;
-    margin-top: 5px;
-    min-height: 0; 
-}
-
-.notes-section, .dungeons-section {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0; 
-}
-
-#notes-container, #dungeon-container {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    flex: 1;
-}
-
-.row {
-    display: flex;
-    align-items: stretch;
-    flex: 1;
-}
-
-.note-row textarea {
-    flex: 1;
-    margin: 0;
-}
-
-.dungeon-row {
-    align-items: center;
-    justify-content: flex-end; 
-}
-
-.dungeon-label {
-    flex: 1;
+.hint-label {
     font-weight: 600;
+    font-size: 0.75rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.dungeon-row select {
-    flex: none; 
-    width: auto; 
-    height: 100%;
-    margin: 0;
-    cursor: pointer;
+/* --- Location -> Item rows --- */
+.pair-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    margin-bottom: 0.125rem;
 }
 
-/* --- Connection Status Indicator --- */
-.dungeons-header {
+.dual-group {
+    border-left: 2px solid #fca311;
+    padding-left: 0.375rem;
+    margin-bottom: 0.3125rem;
+}
+.dual-group .pair-row:last-child { margin-bottom: 0; }
+
+/* --- Path --- */
+#path-container { display: flex; flex-direction: column; gap: 0.125rem; }
+
+.path-group { display: flex; flex-direction: column; margin-bottom: 0.125rem; }
+
+.path-row { display: flex; align-items: center; height: 1.375rem; }
+.path-row textarea { flex: 1; margin: 0; }
+
+.path-controls {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #333;
-    margin: 4px 0;
-    padding-bottom: 2px;
+    gap: 0.25rem;
+    width: 2.875rem;
+    margin-right: 0.25rem;
     flex-shrink: 0;
 }
 
-.dungeons-header h2 {
-    border-bottom: none;
+.path-checkbox {
     margin: 0;
-    padding-bottom: 0;
+    cursor: pointer;
+    width: 1rem;
+    height: 1rem;
+    accent-color: #fca311;
 }
 
-#connection-status {
+.item-row {
     display: flex;
+    gap: 0.1875rem;
+    flex-wrap: wrap;
+    padding-left: 3.125rem;
+    margin-top: 0.125rem;
     align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    text-transform: none;
-    font-weight: 600;
 }
 
-.status-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
+.item-select {
+    flex: none;
+    width: auto;
+    height: 1.1875rem;
+    padding: 0 0.125rem;
+    font-size: 0.6875rem;
+    cursor: pointer;
 }
 
-/* Green (Connected) State */
-.status-connected .status-indicator {
-    background-color: #2ecc71; 
-    box-shadow: 0 0 6px #2ecc71;
+.delete-item-btn {
+    width: 1.375rem;
+    height: 1.25rem;
+    margin-right: 0.25rem;
+    flex-shrink: 0;
+    background-color: #2b2b36;
+    color: #fca311;
+    border: 1px solid #444;
+    border-radius: 0.1875rem;
+    cursor: pointer;
+    font-size: 0.6875rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
 }
-.status-connected .status-text {
-    color: #2ecc71;
-}
+.delete-item-btn:hover { background-color: #444; color: #fff; }
 
-/* Red (Disconnected) State */
-.status-disconnected .status-indicator {
-    background-color: #e74c3c;
-}
-.status-disconnected .status-text {
-    color: #e74c3c;
-}
+.resolved { opacity: 0.4; transition: opacity 0.2s ease-in-out; }
 
-/* DRAG AND DROP REORDERING STYLES */
+/* --- Drag handle --- */
 .drag-handle {
     cursor: grab;
-    font-size: 12px;
+    font-size: 0.6875rem;
     color: #888;
     user-select: none;
-    width: 20px;      
-    height: 16px;
+    width: 1.375rem;
+    height: 1.125rem;
     background-color: #2b2b36;
     border: 1px solid #444;
-    border-radius: 3px;
+    border-radius: 0.1875rem;
     display: flex;
     justify-content: center;
     align-items: center;
     transition: background-color 0.2s, color 0.2s;
 }
-
-.drag-handle:hover {
-    background-color: #444;
-    color: #fff;
-}
-
-.drag-handle:active {
-    cursor: grabbing;
-}
+.drag-handle:hover { background-color: #444; color: #fff; }
+.drag-handle:active { cursor: grabbing; }
 
 .path-group.dragging {
     opacity: 0.4;
@@ -292,13 +198,26 @@ select:focus, textarea:focus {
     background-color: #1e1e24;
 }
 
-.path-controls {
+/* --- Skip toggle (check not worth doing) --- */
+.skip-btn {
+    width: 1.375rem;
+    height: 1.375rem;
+    padding: 0;
+    background-color: #2b2b36;
+    color: #fca311;
+    border: 1px solid #444;
+    border-radius: 0.1875rem;
+    cursor: pointer;
+    font-size: 0.6875rem;
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    gap: 4px;
-    width: 24px;        
-    margin-right: 8px;   
-    flex-shrink: 0;      
+    align-items: center;
 }
+.skip-btn:hover { background-color: #444; color: #fff; }
+
+.hint-row.skipped .hint-label,
+.hint-row.skipped .hint-input {
+    opacity: 0.35;
+    text-decoration: line-through;
+}
+.hint-row.skipped .skip-btn { border-color: #fca311; }

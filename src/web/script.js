@@ -1,23 +1,113 @@
 // ==========================================
-// GAME DATA & UI GENERATION
+// GAME DATA
 // ==========================================
 const gameItems = [
-    "Bow", "Hookshot", "Longshot", "Hammer", "Bombs", "Bombchus", "Scale", 
-    "Strength 1", "Strength 2", "Strength 3", "KokiriSword", "BiggoronSword", 
-    "MirrorShield", "ZoraTunic", "GoronTunic", "IronBoots", "HoverBoots", 
-    "Dins", "Farores", "Nayrus", "Magic", "Fire", "Ice", "Light", "Slingshot", 
+    "Bow", "Hookshot", "Longshot", "Hammer", "Bombs", "Bombchus", "Scale",
+    "Strength 1", "Strength 2", "Strength 3", "KokiriSword", "BiggoronSword",
+    "MirrorShield", "ZoraTunic", "GoronTunic", "IronBoots", "HoverBoots",
+    "Dins", "Farores", "Nayrus", "Magic", "Fire", "Ice", "Light", "Slingshot",
     "Boomerang", "Lens", "Bottle", "ZoraLetter"
 ];
 const gameSongs = [
-    "ZeldasLullaby", "EponasSong", "SunsSong", "SariasSong", "SongofTime", 
-    "SongofStorms", "MinuetofForest", "BoleroofFire", "SerenadeofWater", 
+    "ZeldasLullaby", "EponasSong", "SunsSong", "SariasSong", "SongofTime",
+    "SongofStorms", "MinuetofForest", "BoleroofFire", "SerenadeofWater",
     "NocturneofShadow", "RequiemofSpirit", "PreludeofLight"
 ];
 const allItemsAndSongs = [...gameItems, ...gameSongs];
 
-// --- Mutually Exclusive Logic for Items ---
+// Hint layout (edit these lists to change the number of fields)
+const ALWAYS_HINTS = ["Biggoron", "Frogs 2", "Skull Mask", "AD", "Kak song"];
+const SKULL_HINTS = ["30 Skulls", "40 Skulls", "50 Skulls"];
+const PATH_COUNT = 5;
+const IMPORTANT_COUNT = 2;
+const SOMETIMES_COUNT = 4;
+const DUAL_COUNT = 2;
+const NOTES_COUNT = 2;
+
+// ==========================================
+// SMALL UI HELPERS
+// ==========================================
+function makeTextarea(placeholder) {
+    const t = document.createElement('textarea');
+    t.className = 'hint-input';
+    t.rows = 1;
+    t.placeholder = placeholder;
+    return t;
+}
+
+// Free text input with autocomplete on items/songs (you can still type anything)
+function makeItemInput(placeholder = "Item") {
+    const i = document.createElement('input');
+    i.type = 'text';
+    i.className = 'hint-input';
+    i.setAttribute('list', 'item-list');
+    i.setAttribute('autocomplete', 'off');
+    i.placeholder = placeholder;
+    return i;
+}
+
+function makeArrow() {
+    const a = document.createElement('span');
+    a.className = 'arrow';
+    a.textContent = '→';
+    return a;
+}
+
+// "LABEL  [ field ]"
+function makeLabelledRow(label, field) {
+    const row = document.createElement('div');
+    row.className = 'hint-row';
+    const l = document.createElement('span');
+    l.className = 'hint-label';
+    l.textContent = label;
+    row.appendChild(l);
+    row.appendChild(field);
+
+    // Toggle: "this check is not worth doing" (greys the row out, keeps what you typed)
+    const skipBtn = document.createElement('button');
+    skipBtn.className = 'skip-btn';
+    skipBtn.textContent = '✖';
+    skipBtn.title = 'Mark as not worth doing';
+    skipBtn.addEventListener('click', () => {
+        const skipped = row.classList.toggle('skipped');
+        field.disabled = skipped;
+        skipBtn.textContent = skipped ? '↺' : '✖';
+        skipBtn.title = skipped ? 'Undo' : 'Mark as not worth doing';
+    });
+    row.appendChild(skipBtn);
+    return row;
+}
+
+// "[ Location ] → [ Item ]"
+function makePairRow(locPlaceholder = "Location", itemPlaceholder = "Item") {
+    const row = document.createElement('div');
+    row.className = 'pair-row';
+    row.appendChild(makeTextarea(locPlaceholder));
+    row.appendChild(makeArrow());
+    row.appendChild(makeItemInput(itemPlaceholder));
+    return row;
+}
+
+// Highlight filled fields
+document.addEventListener('input', (e) => {
+    if (e.target.matches('.hint-input')) {
+        e.target.classList.toggle('has-value', e.target.value.trim() !== '');
+    }
+});
+
+// Autocomplete list
+const itemList = document.getElementById('item-list');
+allItemsAndSongs.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item;
+    itemList.appendChild(opt);
+});
+
+// ==========================================
+// PATH (goal hints) - dropdowns are mutually exclusive
+// ==========================================
 function updateItemDropdowns() {
-    const allItemSelects = document.querySelectorAll('.item-select');
+    const allItemSelects = document.querySelectorAll('.path-group .item-select');
     const selectedValues = Array.from(allItemSelects)
         .map(s => s.value)
         .filter(val => val !== "");
@@ -38,11 +128,10 @@ function updateItemDropdowns() {
     });
 }
 
-// --- Logic to create a new item dropdown ---
 function createItemDropdown(container, referenceNode) {
     const select = document.createElement('select');
     select.className = 'item-select';
-    
+
     const defaultOpt = document.createElement('option');
     defaultOpt.value = "";
     defaultOpt.innerText = "---";
@@ -55,73 +144,69 @@ function createItemDropdown(container, referenceNode) {
         select.appendChild(opt);
     });
 
-    select.addEventListener('change', function() {
+    select.addEventListener('change', function () {
         updateItemDropdowns();
-        
+
         const selectsInRow = container.querySelectorAll('.item-select');
         const isLast = (this === selectsInRow[selectsInRow.length - 1]);
         const isResolved = container.parentElement.querySelector('.path-checkbox').checked;
-        
+
         if (this.value !== "" && isLast && !isResolved) {
             createItemDropdown(container, referenceNode);
         }
     });
 
     container.insertBefore(select, referenceNode);
-    updateItemDropdowns(); 
+    updateItemDropdowns();
 }
 
-// --- Generate Path Elements ---
 const pathContainer = document.getElementById('path-container');
-for (let i = 0; i < 8; i++) {
+for (let i = 0; i < PATH_COUNT; i++) {
     const group = document.createElement('div');
     group.className = 'path-group';
 
     const row = document.createElement('div');
     row.className = 'path-row';
-    
     row.innerHTML = `
         <div class="path-controls">
             <input type="checkbox" class="path-checkbox" title="Mark as resolved">
             <div class="drag-handle" title="Drag to reorder">☰</div>
         </div>
-        <textarea placeholder="Source"></textarea>
+        <textarea class="hint-input" rows="1" placeholder="Source"></textarea>
         <span class="arrow">→</span>
-        <textarea placeholder="Destination"></textarea>
+        <textarea class="hint-input" rows="1" placeholder="Destination"></textarea>
     `;
 
     const itemRow = document.createElement('div');
     itemRow.className = 'item-row';
-    
+
     const delBtn = document.createElement('button');
     delBtn.className = 'delete-item-btn';
     delBtn.innerHTML = '✖';
     delBtn.title = 'Remove last item';
 
-    delBtn.addEventListener('click', function() {
+    delBtn.addEventListener('click', function () {
         const selects = itemRow.querySelectorAll('.item-select');
         if (selects.length > 1) {
             selects[selects.length - 1].remove();
             updateItemDropdowns();
-        } 
-        else if (selects.length === 1) {
+        } else if (selects.length === 1) {
             selects[0].value = "";
             updateItemDropdowns();
         }
     });
 
     itemRow.appendChild(delBtn);
-    createItemDropdown(itemRow, delBtn); 
+    createItemDropdown(itemRow, delBtn);
 
     group.appendChild(row);
     group.appendChild(itemRow);
     pathContainer.appendChild(group);
 
-    const dragHandle = row.querySelector('.drag-handle');
-    setupDragAndDrop(group, dragHandle);
+    setupDragAndDrop(group, row.querySelector('.drag-handle'));
 
     const checkbox = row.querySelector('.path-checkbox');
-    checkbox.addEventListener('change', function() {
+    checkbox.addEventListener('change', function () {
         if (this.checked) {
             group.classList.add('resolved');
             const selects = itemRow.querySelectorAll('.item-select');
@@ -139,76 +224,55 @@ for (let i = 0; i < 8; i++) {
     });
 }
 
-// --- Generate Note Elements ---
+// ==========================================
+// ALWAYS HINTS (fixed labels: Biggoron, Frogs 2, Skull Mask, OoT, Burning Kak, Big Poe)
+// ==========================================
+const alwaysContainer = document.getElementById('always-container');
+ALWAYS_HINTS.forEach(name => {
+    alwaysContainer.appendChild(makeLabelledRow(name, makeItemInput("Item")));
+});
+
+// ==========================================
+// LIGHT ARROWS (Dampé's Diary) + SKULL HINTS
+// ==========================================
+const specialContainer = document.getElementById('special-container');
+specialContainer.appendChild(makeLabelledRow("Light Arr.", makeTextarea("Location")));
+SKULL_HINTS.forEach(name => {
+    specialContainer.appendChild(makeLabelledRow(name, makeItemInput("Item")));
+});
+
+// ==========================================
+// IMPORTANT CHECKS / SOMETIMES / DUAL / NOTES
+// ==========================================
+const importantContainer = document.getElementById('important-container');
+for (let i = 0; i < IMPORTANT_COUNT; i++) {
+    importantContainer.appendChild(makePairRow("Location", "Item"));
+}
+
+const sometimesContainer = document.getElementById('sometimes-container');
+for (let i = 0; i < SOMETIMES_COUNT; i++) {
+    sometimesContainer.appendChild(makePairRow("Location", "Item"));
+}
+
+// A dual hint = two locations that both hold good items
+const dualContainer = document.getElementById('dual-container');
+for (let i = 0; i < DUAL_COUNT; i++) {
+    const group = document.createElement('div');
+    group.className = 'dual-group';
+    group.appendChild(makePairRow("Location A", "Item"));
+    group.appendChild(makePairRow("Location B", "Item"));
+    dualContainer.appendChild(group);
+}
+
 const notesContainer = document.getElementById('notes-container');
-for (let i = 0; i < 7; i++) {
+for (let i = 0; i < NOTES_COUNT; i++) {
     const row = document.createElement('div');
-    row.className = 'row note-row';
-    row.innerHTML = `
-        <textarea placeholder="Hint / Item"></textarea>
-        <span class="arrow">→</span>
-        <textarea placeholder="Location"></textarea>
-    `;
+    row.className = 'pair-row';
+    row.appendChild(makeTextarea("Hint / Item"));
+    row.appendChild(makeArrow());
+    row.appendChild(makeTextarea("Location"));
     notesContainer.appendChild(row);
 }
-
-// --- Generate Dungeon Elements ---
-const dungeons = ['Deku', 'DC', 'Jabu', 'Forest', 'Fire', 'Water', 'Shadow', 'Spirit', 'BotW', 'Ice', 'GTG'];
-const dungeonContainer = document.getElementById('dungeon-container');
-
-dungeons.forEach(dungeon => {
-    const row = document.createElement('div');
-    row.className = 'row dungeon-row';
-    
-    const labelHtml = `<span class="dungeon-label">${dungeon}</span> <span class="arrow">→</span>`;
-    
-    const select = document.createElement('select');
-    select.className = 'dungeon-select';
-    select.id = `entrance-${dungeon}`;
-    
-    const defaultOption = document.createElement('option');
-    defaultOption.value = "";
-    defaultOption.innerText = "---";
-    select.appendChild(defaultOption);
-
-    dungeons.forEach(d => {
-        const option = document.createElement('option');
-        option.value = d;
-        option.innerText = d;
-        select.appendChild(option);
-    });
-
-    row.innerHTML = labelHtml;
-    row.appendChild(select);
-    dungeonContainer.appendChild(row);
-});
-
-// --- Mutually Exclusive Dropdown Logic for Dungeons ---
-const dungeonSelects = document.querySelectorAll('.dungeon-select');
-function updateDungeonDropdowns() {
-    const selectedValues = Array.from(dungeonSelects)
-        .map(s => s.value)
-        .filter(val => val !== "");
-
-    dungeonSelects.forEach(select => {
-        const currentSelectValue = select.value;
-        Array.from(select.options).forEach(option => {
-            if (option.value === "") return;
-
-            if (selectedValues.includes(option.value) && option.value !== currentSelectValue) {
-                option.disabled = true;
-                option.style.color = "#555";
-            } else {
-                option.disabled = false;
-                option.style.color = "#fff";
-            }
-        });
-    });
-}
-
-dungeonSelects.forEach(select => {
-    select.addEventListener('change', updateDungeonDropdowns);
-});
 
 // --- Prevent Accidental Refresh / Close ---
 window.addEventListener('beforeunload', function (e) {
@@ -217,56 +281,8 @@ window.addEventListener('beforeunload', function (e) {
 });
 
 // ==========================================
-// AUTO-TRACKER WEBSOCKET LOGIC
+// DRAG AND DROP REORDERING (path rows)
 // ==========================================
-
-const trackerSocket = new WebSocket('ws://127.0.0.1:8080');
-
-// Grab the UI elements
-const statusContainer = document.getElementById('connection-status');
-const statusText = statusContainer.querySelector('.status-text');
-
-trackerSocket.onopen = function(event) {
-    console.log("🟢 Connected to RMG Auto-Tracker Server!");
-    statusContainer.className = 'status-connected';
-    statusText.innerText = 'Auto-Tracker Connected';
-};
-
-trackerSocket.onmessage = function(event) {
-    const payload = JSON.parse(event.data);
-    
-    if (payload.type === "entrances") {
-        for (const [entranceName, destinationName] of Object.entries(payload.locations)) {
-            
-            let finalValue = destinationName;
-            if (destinationName === "???") finalValue = ""; // Resets to '---'
-
-            const dropdown = document.getElementById(`entrance-${entranceName}`);
-            
-            if (dropdown && dropdown.value !== finalValue) {
-                dropdown.value = finalValue;
-                dropdown.dispatchEvent(new Event('change'));
-            }
-        }
-    }
-};
-
-trackerSocket.onclose = function(event) {
-    console.log("🔴 Disconnected from Auto-Tracker Server.");
-    statusContainer.className = 'status-disconnected';
-    statusText.innerText = 'Disconnected';
-};
-
-trackerSocket.onerror = function(error) {
-    console.error("WebSocket Error:", error);
-    statusContainer.className = 'status-disconnected';
-    statusText.innerText = 'Disconnected';
-};
-
-// ==========================================
-// DRAG AND DROP REORDERING LOGIC
-// ==========================================
-
 function setupDragAndDrop(pathRow, dragHandle) {
     dragHandle.addEventListener('mousedown', () => { pathRow.setAttribute('draggable', 'true'); });
     dragHandle.addEventListener('mouseup', () => { pathRow.removeAttribute('draggable'); });
@@ -274,7 +290,7 @@ function setupDragAndDrop(pathRow, dragHandle) {
 
     pathRow.addEventListener('dragstart', (e) => {
         pathRow.classList.add('dragging');
-        e.dataTransfer.setData('text/plain', ''); 
+        e.dataTransfer.setData('text/plain', '');
     });
 
     pathRow.addEventListener('dragend', () => {
